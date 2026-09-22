@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "NightShift",
+  "version": "0.1.0",
+  "description": "A free, persistent dark mode for the web.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "NightShift"
+  },
+  "background": {
+    "service_worker": "background/background.js"
+  }
+}

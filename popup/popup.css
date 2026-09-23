@@ -1,36 +1,14 @@
-body {
-  width: 280px;
-  margin: 0;
-  padding: 20px;
-  background: #0b0b0f;
-  color: white;
-  font-family: Arial, sans-serif;
+html.nightshift-dark {
+  background: #111 !important;
 }
 
-.container {
-  text-align: center;
+html.nightshift-dark body {
+  background: #111 !important;
+  color: #eee !important;
 }
 
-h1 {
-  margin-bottom: 8px;
-}
-
-p {
-  color: #aaa;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #111;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.85;
+hg
+html.nightshift-dark img,
+html.nightshift-dark video {
+  background-color: transparent !important;
 }

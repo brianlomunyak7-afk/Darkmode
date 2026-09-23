@@ -14,5 +14,13 @@
   },
   "background": {
     "service_worker": "background/background.js"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["content/darkmode.css"],
+      "js": ["content/darkmode.js"],
+      "run_at": "document_start"
+    }
+  ]
 }

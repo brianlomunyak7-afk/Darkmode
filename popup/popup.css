@@ -7,7 +7,12 @@ html.nightshift-dark body {
   color: #eee !important;
 }
 
-hg
+html.nightshift-dark * {
+  background-color: #111 !important;
+  color: #eee !important;
+  border-color: #333 !important;
+}
+
 html.nightshift-dark img,
 html.nightshift-dark video {
   background-color: transparent !important;

@@ -6,18 +6,20 @@ function disableDarkMode() {
   document.documentElement.classList.remove("nightshift-dark");
 }
 
-chrome.storage.local.get(["enabled"], (result) => {
-  if (result.enabled) {
+// Check the saved global NightShift state
+chrome.storage.local.get("enabled", (result) => {
+  if (result.enabled === true) {
     enableDarkMode();
   }
 });
 
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.action === "enable") {
-    enableDarkMode();
-  }
+// Listen for changes while the page is open
+chrome.storage.onChanged.addListener((changes) => {
+  if (!changes.enabled) return;
 
-  if (message.action === "disable") {
+  if (changes.enabled.newValue === true) {
+    enableDarkMode();
+  } else {
     disableDarkMode();
   }
 });

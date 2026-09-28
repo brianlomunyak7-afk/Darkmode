@@ -35,6 +35,24 @@ function hostOf(url) {
   }
 }
 
+async function injectIntoOpenTabs() {
+  if (!chrome.scripting) return;
+  let tabs = [];
+  try {
+    tabs = await chrome.tabs.query({ url: ["http://*/*", "https://*/*", "file:///*"] });
+  } catch (e) {
+    return;
+  }
+  await Promise.all(tabs.map(async (tab) => {
+    if (tab.id === undefined || tab.discarded) return;
+    const target = { tabId: tab.id, allFrames: true };
+    try {
+      await chrome.scripting.insertCSS({ target, files: ["content/darkmode.css"] });
+      await chrome.scripting.executeScript({ target, files: ["content/darkmode.js"] });
+    } catch (e) {}
+  }));
+}
+
 chrome.runtime.onInstalled.addListener(async () => {
   try {
     const current = await chrome.storage.local.get(DEFAULTS);
@@ -42,6 +60,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   } catch (e) {
     console.warn("NightShift: could not seed settings", e);
   }
+  await injectIntoOpenTabs();
 });
 
 chrome.commands.onCommand.addListener(async (command) => {

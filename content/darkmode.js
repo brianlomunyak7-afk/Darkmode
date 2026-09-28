@@ -4,6 +4,13 @@
   const ext = globalThis.chrome;
   if (!ext || !ext.storage || !ext.storage.local) return;
 
+  try {
+    if (typeof globalThis.__nightshiftAlive === "function" && globalThis.__nightshiftAlive()) return;
+  } catch (e) {}
+  globalThis.__nightshiftAlive = () => {
+    try { return !!(ext.runtime && ext.runtime.id); } catch (e) { return false; }
+  };
+
   const DEFAULTS = {
     enabled: true,
     disabledSites: [],
@@ -17,12 +24,12 @@
 
   function topHost() {
     if (isTop) { try { return location.hostname || ""; } catch (e) { return ""; } }
-    try { return window.top.location.hostname || ""; } catch (e) {  }
+    try { return window.top.location.hostname || ""; } catch (e) {}
     try {
       const a = location.ancestorOrigins;
       if (a && a.length) return new URL(a[a.length - 1]).hostname || "";
-    } catch (e) {  }
-    try { if (document.referrer) return new URL(document.referrer).hostname || ""; } catch (e) {  }
+    } catch (e) {}
+    try { if (document.referrer) return new URL(document.referrer).hostname || ""; } catch (e) {}
     try { return location.hostname || ""; } catch (e) { return ""; }
   }
 
@@ -31,7 +38,7 @@
 
   let state = Object.assign({}, DEFAULTS);
   let nativeDark = false;
-  try { nativeDark = localStorage.getItem(CACHE_KEY) === "1"; } catch (e) {  }
+  try { nativeDark = localStorage.getItem(CACHE_KEY) === "1"; } catch (e) {}
 
   function alive() {
     try { return !!(ext.runtime && ext.runtime.id); } catch (e) { return false; }
@@ -62,9 +69,7 @@
       }
       if (wanted(s)) root.setAttribute(ATTR, "on");
       else root.removeAttribute(ATTR);
-    } catch (e) {
-
-    }
+    } catch (e) {}
     return true;
   }
 
@@ -101,7 +106,7 @@
     }
     if (dark !== nativeDark) {
       nativeDark = dark;
-      try { localStorage.setItem(CACHE_KEY, dark ? "1" : "0"); } catch (e) {  }
+      try { localStorage.setItem(CACHE_KEY, dark ? "1" : "0"); } catch (e) {}
       render();
     }
   }
@@ -114,9 +119,7 @@
         state = Object.assign({}, DEFAULTS, stored || {});
         render();
       });
-    } catch (e) {
-
-    }
+    } catch (e) {}
   }
 
   refresh();
@@ -133,7 +136,7 @@
       }
       if (touched) render();
     });
-  } catch (e) {  }
+  } catch (e) {}
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", detectNativeDark, { once: true });
@@ -141,9 +144,9 @@
     detectNativeDark();
   }
 
-  try { addEventListener("load", detectNativeDark, { once: true }); } catch (e) {  }
+  try { addEventListener("load", detectNativeDark, { once: true }); } catch (e) {}
 
   try {
     addEventListener("pageshow", (e) => { if (e.persisted) refresh(); });
-  } catch (e) {  }
+  } catch (e) {}
 })();

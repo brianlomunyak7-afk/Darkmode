@@ -11,6 +11,16 @@ const pages = {
   "/frame": `<!doctype html><body style="background:#fff">framed</body>`,
   "/xml": `<?xml version="1.0"?><root><item>x</item></root>`,
   "/svg": `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>`,
+  "/appnow": `<!doctype html><body style="margin:0"><div id="app" style="position:fixed;inset:0;background:#313338;color:#dbdee1">chat</div></body>`,
+  "/applate": `<!doctype html><body style="margin:0"><script>setTimeout(()=>{const d=document.createElement("div");d.style.cssText="position:fixed;inset:0;background:#1e1f22;color:#dbdee1";d.textContent="chat";document.body.appendChild(d)},1200)</script></body>`,
+  "/lightapp": `<!doctype html><body style="margin:0"><div style="position:fixed;inset:0;background:#fafafa;color:#111">feed</div></body>`,
+  "/toggle": `<!doctype html><html class="theme-light"><style>#app{position:fixed;inset:0;background:#fff}.theme-dark #app{background:#202225;color:#eee}</style><body style="margin:0"><div id="app">app</div></body></html>`,
+  "/oklab": `<!doctype html><body style="margin:0;background:oklab(0.18 0.001 -0.004)"><div style="position:fixed;inset:0">modern dark</div></body>`,
+  "/oklch": `<!doctype html><body style="margin:0"><div style="position:fixed;inset:0;background:oklch(0.21 0.02 260)">tailwind dark</div></body>`,
+  "/oklchlight": `<!doctype html><body style="margin:0"><div style="position:fixed;inset:0;background:oklch(0.98 0 0)">tailwind light</div></body>`,
+  "/player": `<!doctype html><body style="background:#fff;margin:0"><p>watch page</p><div id="pl" style="background:#000;width:900px;height:560px"><video id="v" style="width:100%;height:100%"></video></div><div style="width:300px;height:300px;background:#f6f6f6">sidebar</div></body>`,
+  "/fs": `<!doctype html><body style="background:#fff;margin:0"><div id="pl" style="background:#000;width:400px;height:300px"><canvas id="c" width="400" height="300"></canvas></div><button id="b" style="position:fixed;bottom:0;right:0">fs</button><script>const x=c.getContext("2d");x.fillStyle="#f00";x.fillRect(0,0,400,300);b.onclick=()=>document.getElementById(location.hash.slice(1)||"pl").requestFullscreen();</script></body>`,
+  "/busy": `<!doctype html><body style="background:#fff"><div id="feed"></div><script>setInterval(()=>{const d=document.createElement("div");d.textContent="msg "+Date.now();feed.prepend(d);if(feed.children.length>50)feed.lastChild.remove()},100)</script></body>`,
   "/blank": `<!doctype html><body style="background:#fff"><iframe id="b"></iframe><script>b.contentDocument.body.innerHTML="inner"</script></body>`
 };
 const types = { "/xml": "application/xml", "/svg": "image/svg+xml" };
@@ -80,6 +90,60 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await p.close();
   p = await open(`${A}/darkhtml`, "darkhtml");
   ok("already-dark site (html) left alone", (await attr(p)) === null);
+  await p.close();
+
+  p = await open(`${A}/appnow`, "appnow");
+  ok("dark app painted on inner container left alone", (await attr(p)) === null);
+  await p.close();
+  p = await open(`${A}/applate`, "applate");
+  await sleep(4500);
+  ok("dark app that renders late is left alone", (await attr(p)) === null);
+  await p.close();
+  for (const [path, want, label] of [["/oklab", null, "oklab"], ["/oklch", null, "oklch"], ["/oklchlight", "on", "oklch light"]]) {
+    p = await open(`${A}${path}`, label);
+    ok(`modern color format (${label}) read correctly`, (await attr(p)) === want);
+    await p.close();
+  }
+  p = await open(`${A}/lightapp`, "lightapp");
+  ok("light app on inner container still goes dark", (await attr(p)) === "on");
+  await p.close();
+  p = await open(`${A}/toggle`, "toggle");
+  const t1 = await attr(p);
+  await p.evaluate(() => { document.documentElement.className = "theme-dark"; }); await sleep(800);
+  const t2 = await attr(p);
+  await p.evaluate(() => { document.documentElement.className = "theme-light"; }); await sleep(800);
+  const t3 = await attr(p);
+  ok("site switching its own theme is followed", t1 === "on" && t2 === null && t3 === "on", `light=${t1} dark=${t2} light=${t3}`);
+  await p.close();
+
+  p = await open(`${A}/player`, "player");
+  ok("video page with big black player still goes dark", (await attr(p)) === "on");
+  const marked = await p.evaluate(() => document.getElementById("pl").hasAttribute("data-nightshift-player"));
+  const plFilter = await p.evaluate(() => getComputedStyle(document.getElementById("pl")).filter);
+  ok("video player box keeps its real black", marked && /invert/.test(plFilter), plFilter);
+  await p.close();
+
+  for (const target of ["pl", "c"]) {
+    p = await open(`${A}/fs#${target}`, `fs-${target}`);
+    await p.click("#b"); await sleep(800);
+    const shot = await p.screenshot({ clip: { x: 100, y: 100, width: 1, height: 1 }, encoding: "base64" });
+    const inFs = await p.evaluate(() => !!document.fullscreenElement);
+    const png = Buffer.from(shot, "base64");
+    const pixel = await p.evaluate(async (b64) => {
+      const img = new Image(); img.src = "data:image/png;base64," + b64; await img.decode();
+      const c = new OffscreenCanvas(1, 1).getContext("2d"); c.drawImage(img, 0, 0);
+      return Array.from(c.getImageData(0, 0, 1, 1).data.slice(0, 3));
+    }, png.toString("base64"));
+    ok(`fullscreen ${target === "pl" ? "player" : "video itself"} shows true colors`, inFs && pixel[0] > 240 && pixel[1] < 30 && pixel[2] < 30, pixel.join(","));
+    await p.close();
+  }
+
+  p = await open(`${A}/busy`, "busy");
+  await sleep(5000);
+  await p.evaluate(() => { window.__flips = 0; new MutationObserver((m) => { window.__flips += m.length; }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-nightshift"] }); });
+  await sleep(5000);
+  const flips = await p.evaluate(() => window.__flips);
+  ok("busy page is not restyled by background checks", flips === 0 && (await attr(p)) === "on", `marker changes=${flips}`);
   await p.close();
 
   p = await open(`${A}/parent`, "parent");

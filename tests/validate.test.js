@@ -74,15 +74,22 @@ test("keyboard commands are declared", () => {
 });
 
 test("permissions stay minimal (lightweight)", () => {
-  assert.deepStrictEqual(manifest.permissions, ["storage"],
-    "only storage is needed; site access comes from host_permissions");
+  assert.deepStrictEqual(manifest.permissions, ["storage", "scripting"],
+    "storage for settings, scripting to theme tabs already open at install");
 });
 
-test("background works in Chromium and Firefox", () => {
-  const bg = manifest.background;
-  assert.ok(bg.service_worker, "Chromium needs service_worker");
-  assert.ok(Array.isArray(bg.scripts) && bg.scripts.includes(bg.service_worker),
-    "Firefox needs background.scripts pointing at the same file");
+test("Chrome manifest has no Firefox-only background key", () => {
+  assert.ok(manifest.background.service_worker);
+  assert.strictEqual(manifest.background.scripts, undefined,
+    "Chrome warns about background.scripts in MV3; it belongs in the Firefox build");
+});
+
+test("Firefox build uses background scripts", () => {
+  const { execFileSync } = require("node:child_process");
+  execFileSync("bash", [path.join(ROOT, "scripts/build-firefox.sh")], { stdio: "ignore" });
+  const ff = JSON.parse(read("dist/firefox/manifest.json"));
+  assert.deepStrictEqual(ff.background, { scripts: [manifest.background.service_worker] });
+  assert.ok(exists("dist/firefox/content/darkmode.js"));
 });
 
 test("Firefox add-on id is declared", () => {

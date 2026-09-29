@@ -22,4 +22,6 @@ done
 
 zip -r -q -X "$ZIP" "${INCLUDE[@]}" -x '*.DS_Store'
 echo "Packaged: $ZIP"
+bash "$ROOT/scripts/build-firefox.sh" >/dev/null
+echo "Packaged: dist/nightshift-firefox-${VERSION}.zip"
 unzip -l "$ZIP" | tail -n +4 | head -n -2 || true

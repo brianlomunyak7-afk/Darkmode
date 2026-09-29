@@ -1,6 +1,6 @@
 {
   "name": "nightshift",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "A free, persistent dark mode for the web. Reduce eye strain on every site.",
   "private": true,
   "scripts": {

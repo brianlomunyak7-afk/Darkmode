@@ -125,11 +125,28 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await stale.evaluate(() => { dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })); });
   await sleep(300);
   ok("extension reloaded under an open page: no crash, theme kept", (await attr(stale)) === "on");
+
   await stale.close();
 
-  ok("no errors thrown anywhere", errors.length === 0, errors.join(" | "));
 
-  await browser.close(); srv.close();
+  await browser.close();
+
+  const b2 = await puppeteer.launch({ executablePath: BROWSER, headless: true, pipe: true, enableExtensions: true,
+    args: ["--no-first-run", "--no-default-browser-check"] });
+  const before = await b2.newPage(); watch(before, "pre-install");
+  await before.goto(`${A}/light`, { waitUntil: "load" });
+  const beforeAttr = await attr(before);
+  await b2.installExtension(EXT);
+  await sleep(1500);
+  ok("tab open before install gets themed without refresh", beforeAttr === null && (await attr(before)) === "on", `before=${beforeAttr} after=${await attr(before)}`);
+  const sw3 = await (await b2.waitForTarget((t) => t.type() === "service_worker" && t.url().endsWith("background/background.js"))).worker();
+  await sw3.evaluate(() => chrome.storage.local.set({ enabled: false })); await sleep(400);
+  const liveOff = await attr(before);
+  await sw3.evaluate(() => chrome.storage.local.set({ enabled: true })); await sleep(400);
+  ok("injected script responds to the popup live", liveOff === null && (await attr(before)) === "on");
+  await b2.close();
+  srv.close();
+  ok("no errors thrown anywhere", errors.length === 0, errors.join(" | "));
   for (const [s, n, x] of results) console.log(`${s}  ${n}${x ? "  [" + x + "]" : ""}`);
   console.log(`\n${results.filter((r) => r[0] === "PASS").length}/${results.length} passed`);
   process.exit(results.some((r) => r[0] === "FAIL") ? 1 : 0);

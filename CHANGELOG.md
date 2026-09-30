@@ -3,6 +3,23 @@
 All notable changes to NightShift are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - Works on more sites
+
+### Fixed
+- Discord and other dark apps were flipped to bright. Detection now samples
+  what is painted on screen instead of only the page root and body.
+- Modern CSS color formats (oklab, oklch and others) were not understood,
+  which hid dark backgrounds on many current sites.
+- YouTube video pages stayed light because the big black player looked like a
+  dark page. Media and players are now ignored when judging the page.
+- Video players turned white around the video. They now keep their real black.
+- Fullscreen video showed washed-out colors.
+
+### Added
+- Rechecks for apps that render late, and for sites that switch their own theme.
+- Tests for these cases, plus a check that busy pages are never restyled by
+  background checks.
+
 ## [0.4.1] - Clean Chrome load
 
 ### Fixed

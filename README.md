@@ -67,6 +67,11 @@ no account and no network access.
 It also handles the awkward cases:
 
 - **Already-dark sites are left alone,** so they don't get flipped to bright.
+  NightShift samples what is actually painted on screen, understands modern
+  CSS color formats, and keeps checking for apps that load late or switch
+  their own theme, like Discord.
+- **Video players stay black** instead of turning white, and fullscreen video
+  shows its true colors.
 - **Embedded frames follow the page they sit in,** so turning a site off turns
   off its embeds too.
 - **Printing is never inverted.**

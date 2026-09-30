@@ -29,14 +29,18 @@ can use it this way indefinitely without ever deploying anything.
 
 ### Firefox (version 121 or newer)
 
-1. Open `about:debugging#/runtime/this-firefox`.
-2. Click **Load Temporary Add-on** and pick `manifest.json` in this folder.
-3. If dark mode doesn't apply, open `about:addons`, choose NightShift, and
-   allow **Access your data for all websites** under Permissions. Firefox
-   asks for site access separately.
+Firefox needs its own build, because Chrome and Firefox disagree on one
+manifest setting.
+
+1. Run `npm run firefox` in this folder. It creates `dist/firefox/`.
+2. Open `about:debugging#/runtime/this-firefox`.
+3. Click **Load Temporary Add-on** and pick `dist/firefox/manifest.json`.
+4. If dark mode doesn't apply, open `about:addons`, choose NightShift, and
+   allow **Access your data for all websites** under Permissions.
 
 Temporary add-ons are removed when Firefox restarts. For a permanent install,
-sign the package for free on addons.mozilla.org (it can stay unlisted).
+sign `dist/nightshift-firefox-<version>.zip` for free on addons.mozilla.org
+(it can stay unlisted).
 
 ### Safari
 
@@ -46,7 +50,8 @@ extension.
 
 ## Lightweight by design
 
-- One permission (`storage`) plus site access. No tracking, no network.
+- Two permissions (`storage`, and `scripting` to theme tabs that were already
+  open when you install) plus site access. No tracking, no network.
 - No frameworks or libraries. The whole extension is about 18 KB zipped.
 - Dark mode is a single CSS filter, so pages aren't rewritten element by element.
 - The background script only wakes for keyboard shortcuts and install.
@@ -92,7 +97,8 @@ tests/                   Structural test suite (node --test)
 | `npm test` | Run the structural test suite |
 | `npm run test:e2e -- /usr/bin/brave-browser` | Run the real-browser test (needs `npm install` first) |
 | `npm run icons` | Regenerate PNG icons |
-| `npm run package` | Build `dist/nightshift-<version>.zip` for sharing/stores |
+| `npm run package` | Build the Chrome and Firefox zips in `dist/` |
+| `npm run firefox` | Build the Firefox version in `dist/firefox/` |
 | `npm run serve` | Preview the landing site at http://localhost:8080 |
 | `npm run build` | icons + validate + package in one step |
 

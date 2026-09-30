@@ -3,6 +3,18 @@
 All notable changes to NightShift are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.1] - Clean Chrome load
+
+### Fixed
+- Chrome no longer shows the "background.scripts requires manifest version 2"
+  warning. The Firefox-only key now lives in a separate Firefox build.
+- Tabs that were open before install or update are themed right away, without
+  a refresh.
+
+### Added
+- `npm run firefox` builds `dist/firefox/` and a Firefox zip.
+- Guard so the content script never runs twice in the same page.
+
 ## [0.4.0] - Crash-proofing
 
 ### Added

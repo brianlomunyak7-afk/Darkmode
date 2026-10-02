@@ -47,7 +47,6 @@ body {
   white-space: nowrap;
 }
 
-/* Toggle switch */
 .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex: none; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider {
@@ -71,7 +70,6 @@ body {
 
 .divider { height: 1px; background: var(--border); margin: 10px 0; }
 
-/* Sliders */
 .control { margin: 10px 0; }
 .control-head {
   display: flex;
@@ -121,7 +119,6 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--text-dim);
 }
 
-/* Firefox slider equivalents */
 input[type="range"]::-moz-range-thumb {
   width: 16px; height: 16px;
   border-radius: 50%;

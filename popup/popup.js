@@ -1,9 +1,3 @@
-/*
- * NightShift popup controller.
- * Reflects saved settings in the UI and writes changes back to storage.
- * The content script listens for those changes and updates pages live.
- */
-
 const DEFAULTS = {
   enabled: true,
   disabledSites: [],
@@ -12,25 +6,43 @@ const DEFAULTS = {
   sepia: 0
 };
 
+const $ = (id) => document.getElementById(id);
 const el = {
-  global: document.getElementById("toggle-global"),
-  site: document.getElementById("toggle-site"),
-  siteHost: document.getElementById("site-host"),
-  brightness: document.getElementById("brightness"),
-  contrast: document.getElementById("contrast"),
-  sepia: document.getElementById("sepia"),
-  brightnessVal: document.getElementById("brightness-val"),
-  contrastVal: document.getElementById("contrast-val"),
-  sepiaVal: document.getElementById("sepia-val"),
-  reset: document.getElementById("reset")
+  global: $("toggle-global"),
+  site: $("toggle-site"),
+  siteHost: $("site-host"),
+  brightness: $("brightness"),
+  contrast: $("contrast"),
+  sepia: $("sepia"),
+  brightnessVal: $("brightness-val"),
+  contrastVal: $("contrast-val"),
+  sepiaVal: $("sepia-val"),
+  reset: $("reset")
 };
 
 let currentHost = "";
 
+function clamp(n, lo, hi, dflt) {
+  n = Number(n);
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt;
+}
+
+function sanitize(s) {
+  s = s || {};
+  return {
+    enabled: typeof s.enabled === "boolean" ? s.enabled : true,
+    disabledSites: Array.isArray(s.disabledSites)
+      ? s.disabledSites.filter((x) => typeof x === "string")
+      : [],
+    brightness: clamp(s.brightness, 0.5, 1.5, 1),
+    contrast: clamp(s.contrast, 0.5, 1.5, 1),
+    sepia: clamp(s.sepia, 0, 1, 0)
+  };
+}
+
 function hostOf(url) {
   try {
     const u = new URL(url);
-    // Only http/https pages can be styled; others have no usable host.
     if (u.protocol !== "http:" && u.protocol !== "https:") return "";
     return u.hostname || "";
   } catch (e) {
@@ -38,78 +50,74 @@ function hostOf(url) {
   }
 }
 
-function pct(n) { return Math.round(Number(n) * 100) + "%"; }
+const pct = (n) => Math.round(Number(n) * 100) + "%";
 
 async function getState() {
-  return chrome.storage.local.get(DEFAULTS);
+  try {
+    return sanitize(await chrome.storage.local.get(DEFAULTS));
+  } catch (e) {
+    return sanitize(null);
+  }
+}
+
+async function save(patch) {
+  try {
+    await chrome.storage.local.set(patch);
+  } catch (e) {
+    console.warn("NightShift: could not save", e);
+  }
 }
 
 async function activeTabHost() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return tab && tab.url ? hostOf(tab.url) : "";
+  try {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    return tabs && tabs[0] && tabs[0].url ? hostOf(tabs[0].url) : "";
+  } catch (e) {
+    return "";
+  }
 }
 
 function render(state) {
-  // Master switch
-  el.global.checked = !!state.enabled;
+  el.global.checked = state.enabled;
 
-  // Per-site switch
-  const siteSupported = !!currentHost;
-  const siteOff = state.disabledSites.includes(currentHost);
-  el.site.checked = siteSupported && !siteOff;
-  el.site.disabled = !siteSupported || !state.enabled;
-  el.siteHost.textContent = siteSupported ? currentHost : "unavailable here";
+  const supported = !!currentHost;
+  el.site.checked = supported && !state.disabledSites.includes(currentHost);
+  el.site.disabled = !supported || !state.enabled;
+  el.siteHost.textContent = supported ? currentHost : "unavailable here";
 
-  // Sliders
-  el.brightness.value = state.brightness;
-  el.contrast.value = state.contrast;
-  el.sepia.value = state.sepia;
-  el.brightnessVal.textContent = pct(state.brightness);
-  el.contrastVal.textContent = pct(state.contrast);
-  el.sepiaVal.textContent = pct(state.sepia);
+  for (const key of ["brightness", "contrast", "sepia"]) {
+    el[key].value = state[key];
+    el[key + "Val"].textContent = pct(state[key]);
+  }
 }
-
-async function init() {
-  currentHost = await activeTabHost();
-  const state = await getState();
-  render(state);
-}
-
-// --- Event wiring ---
 
 el.global.addEventListener("change", async () => {
-  await chrome.storage.local.set({ enabled: el.global.checked });
+  await save({ enabled: el.global.checked });
   render(await getState());
 });
 
 el.site.addEventListener("change", async () => {
   if (!currentHost) return;
   const state = await getState();
-  const set = new Set(state.disabledSites);
-  if (el.site.checked) {
-    set.delete(currentHost); // dark on
-  } else {
-    set.add(currentHost);    // dark off for this site
-  }
-  await chrome.storage.local.set({ disabledSites: Array.from(set) });
+  const sites = new Set(state.disabledSites);
+  if (el.site.checked) sites.delete(currentHost);
+  else sites.add(currentHost);
+  await save({ disabledSites: [...sites] });
 });
 
-function bindSlider(input, output, key) {
-  input.addEventListener("input", () => {
-    output.textContent = pct(input.value);
-  });
-  input.addEventListener("change", async () => {
-    await chrome.storage.local.set({ [key]: Number(input.value) });
-  });
+for (const key of ["brightness", "contrast", "sepia"]) {
+  const input = el[key];
+  const output = el[key + "Val"];
+  input.addEventListener("input", () => { output.textContent = pct(input.value); });
+  input.addEventListener("change", () => save({ [key]: Number(input.value) }));
 }
 
-bindSlider(el.brightness, el.brightnessVal, "brightness");
-bindSlider(el.contrast, el.contrastVal, "contrast");
-bindSlider(el.sepia, el.sepiaVal, "sepia");
-
 el.reset.addEventListener("click", async () => {
-  await chrome.storage.local.set({ brightness: 1, contrast: 1, sepia: 0 });
+  await save({ brightness: 1, contrast: 1, sepia: 0 });
   render(await getState());
 });
 
-init();
+(async () => {
+  currentHost = await activeTabHost();
+  render(await getState());
+})();

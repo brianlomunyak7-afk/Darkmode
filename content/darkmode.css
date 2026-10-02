@@ -1,18 +1,4 @@
-/*
- * NightShift dark-mode engine.
- *
- * Nothing here applies until <html> gets the class "nightshift-on",
- * which the content script adds only when dark mode should be active.
- * That keeps pages untouched when the extension is off (no flash).
- *
- * Technique: invert the whole document, then rotate hue 180deg so
- * colors stay roughly recognisable (blue stays blue, not orange).
- * Media (images, video, etc.) is inverted a second time so it is
- * displayed with its original colors.
- */
-
-html.nightshift-on {
-  /* Variables are overwritten inline by the content script from saved settings. */
+html[data-nightshift="on"] {
   --ns-brightness: 1;
   --ns-contrast: 1;
   --ns-sepia: 0;
@@ -24,28 +10,47 @@ html.nightshift-on {
     contrast(var(--ns-contrast))
     sepia(var(--ns-sepia)) !important;
 
-  /* Ensure bare/transparent regions resolve to dark after inversion. */
   background-color: #ffffff !important;
+
+  color-scheme: light !important;
 }
 
-/* Re-invert media and anything that paints real imagery so it looks normal. */
-html.nightshift-on img,
-html.nightshift-on video,
-html.nightshift-on picture,
-html.nightshift-on canvas,
-html.nightshift-on iframe,
-html.nightshift-on embed,
-html.nightshift-on object,
-html.nightshift-on svg image,
-html.nightshift-on [style*="background-image"],
-html.nightshift-on [data-nightshift-skip] {
+html[data-nightshift="on"] img,
+html[data-nightshift="on"] video,
+html[data-nightshift="on"] picture,
+html[data-nightshift="on"] canvas,
+html[data-nightshift="on"] iframe,
+html[data-nightshift="on"] embed,
+html[data-nightshift="on"] object,
+html[data-nightshift="on"] svg image,
+html[data-nightshift="on"] [style*="background-image"],
+html[data-nightshift="on"] [data-nightshift-skip] {
   filter: invert(1) hue-rotate(180deg) !important;
 }
 
-/* Media nested inside an already re-inverted container must not flip twice. */
-html.nightshift-on [style*="background-image"] img,
-html.nightshift-on [style*="background-image"] video,
-html.nightshift-on [data-nightshift-skip] img,
-html.nightshift-on [data-nightshift-skip] video {
+html[data-nightshift="on"] [style*="background-image"] img,
+html[data-nightshift="on"] [style*="background-image"] video,
+html[data-nightshift="on"] [data-nightshift-skip] img,
+html[data-nightshift="on"] [data-nightshift-skip] video {
   filter: none !important;
+}
+
+@media print {
+  html[data-nightshift="on"],
+  html[data-nightshift="on"] img,
+  html[data-nightshift="on"] video,
+  html[data-nightshift="on"] picture,
+  html[data-nightshift="on"] canvas,
+  html[data-nightshift="on"] iframe,
+  html[data-nightshift="on"] embed,
+  html[data-nightshift="on"] object,
+  html[data-nightshift="on"] svg image,
+  html[data-nightshift="on"] [style*="background-image"],
+  html[data-nightshift="on"] [data-nightshift-skip] {
+    filter: none !important;
+  }
+  html[data-nightshift="on"] {
+    background-color: transparent !important;
+    color-scheme: normal !important;
+  }
 }

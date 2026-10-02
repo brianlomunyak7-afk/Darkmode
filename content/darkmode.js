@@ -65,7 +65,9 @@
   // Live updates while the page is open.
   try {
     chrome.storage.onChanged.addListener((changes, area) => {
+      // Only re-read when one of our own settings changed.
       if (area !== "local") return;
+      if (!Object.keys(changes).some((k) => k in DEFAULTS)) return;
       chrome.storage.local.get(DEFAULTS, apply);
     });
   } catch (e) {

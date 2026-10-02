@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NightShift",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A free, persistent dark mode for the web. Reduce eye strain on every site.",
   "permissions": [
     "storage"
@@ -37,7 +37,9 @@
         "content/darkmode.js"
       ],
       "run_at": "document_start",
-      "all_frames": true
+      "all_frames": true,
+      "match_about_blank": true,
+      "match_origin_as_fallback": true
     }
   ],
   "commands": {

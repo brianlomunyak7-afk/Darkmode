@@ -76,3 +76,19 @@ test("keyboard commands are declared", () => {
   assert.ok(manifest.commands["toggle-global"]);
   assert.ok(manifest.commands["toggle-site"]);
 });
+
+test("permissions stay minimal (lightweight)", () => {
+  assert.deepStrictEqual(manifest.permissions, ["storage"],
+    "only storage is needed; site access comes from host_permissions");
+});
+
+test("background works in Chromium and Firefox", () => {
+  const bg = manifest.background;
+  assert.ok(bg.service_worker, "Chromium needs service_worker");
+  assert.ok(Array.isArray(bg.scripts) && bg.scripts.includes(bg.service_worker),
+    "Firefox needs background.scripts pointing at the same file");
+});
+
+test("Firefox add-on id is declared", () => {
+  assert.ok(manifest.browser_specific_settings?.gecko?.id);
+});

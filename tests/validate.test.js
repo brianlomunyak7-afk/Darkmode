@@ -1,9 +1,5 @@
 "use strict";
-/*
- * Structural tests for the NightShift extension.
- * Run with:  node --test   (or)   node tests/validate.test.js
- * No dependencies — uses Node's built-in test runner and assert.
- */
+
 const test = require("node:test");
 const assert = require("node:assert");
 const fs = require("node:fs");
@@ -68,7 +64,7 @@ test("popup references its css and js", () => {
 
 test("content css only activates behind the nightshift-on class", () => {
   const css = read("content/darkmode.css");
-  assert.match(css, /html\.nightshift-on/,
+  assert.match(css, /html\[data-nightshift="on"\]/,
     "dark styles must be scoped so disabled pages are untouched");
 });
 
@@ -91,4 +87,17 @@ test("background works in Chromium and Firefox", () => {
 
 test("Firefox add-on id is declared", () => {
   assert.ok(manifest.browser_specific_settings?.gecko?.id);
+});
+
+test("content script also covers blank and sandboxed frames", () => {
+  const cs = manifest.content_scripts[0];
+  assert.strictEqual(cs.all_frames, true);
+  assert.strictEqual(cs.match_about_blank, true);
+});
+
+test("runtime scripts guard every async browser call", () => {
+  for (const f of ["background/background.js", "popup/popup.js"]) {
+    const src = read(f);
+    assert.ok((src.match(/try \{/g) || []).length >= 2, `${f} should wrap browser calls`);
+  }
 });

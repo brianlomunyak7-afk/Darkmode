@@ -10,7 +10,7 @@
     const zipName = `nightshift-${version}.zip`;
     const zipPath = `downloads/${zipName}`;
     const label = document.getElementById("version");
-    if (label) label.textContent = `v${version} · Manifest V3 · Chrome, Edge, Brave`;
+    if (label) label.textContent = `v${version} · Manifest V3 · Chrome, Firefox, Edge, Brave`;
 
     for (const id of ["download", "zip-link"]) {
       const a = document.getElementById(id);

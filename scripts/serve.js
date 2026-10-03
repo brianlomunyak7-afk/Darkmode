@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 "use strict";
-// Minimal static server for local preview. Serves build/site if present
-// (fully functional, with the download), otherwise the raw website/ dir.
+
 const http = require("http");
 const fs = require("fs");
 const path = require("path");

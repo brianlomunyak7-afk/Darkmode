@@ -1,6 +1,6 @@
 {
   "name": "nightshift",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A free, persistent dark mode for the web. Reduce eye strain on every site.",
   "private": true,
   "scripts": {
@@ -12,10 +12,14 @@
     "serve": "node scripts/serve.js",
     "docker:build": "docker compose build",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "test:e2e": "node tests/e2e.js"
   },
   "license": "MIT",
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.0.0"
   }
 }

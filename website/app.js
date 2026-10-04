@@ -1,5 +1,3 @@
-// Point the download links at the packaged zip for the current version,
-// and keep the version label in sync. Served statically; degrades gracefully.
 (async () => {
   try {
     const res = await fetch("version.json", { cache: "no-store" });
@@ -20,6 +18,6 @@
       if (id === "zip-link") a.textContent = zipName;
     }
   } catch (e) {
-    /* static hosting without version.json — links fall back to #install */
+
   }
 })();

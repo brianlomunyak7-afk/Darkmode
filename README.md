@@ -47,17 +47,27 @@ extension.
 ## Lightweight by design
 
 - One permission (`storage`) plus site access. No tracking, no network.
-- No frameworks or libraries. The whole extension is about 16 KB zipped.
+- No frameworks or libraries. The whole extension is about 18 KB zipped.
 - Dark mode is a single CSS filter, so pages aren't rewritten element by element.
 - The background script only wakes for keyboard shortcuts and install.
 
 ## How it works
 
-A content script runs on every page at load and adds a class to the page when
-dark mode should be on. The CSS then inverts the page's colors (rotating the
-hue so blues stay blue) while re-inverting images and video so media still
-looks right. Preferences live in the browser's local storage, so the extension
-needs no account and no network access.
+A content script runs on every page at load and marks the page when dark
+mode should be on. The CSS then inverts the page's colors (rotating the hue so
+blues stay blue) while re-inverting images and video so media still looks
+right. Preferences live in the browser's local storage, so the extension needs
+no account and no network access.
+
+It also handles the awkward cases:
+
+- **Already-dark sites are left alone,** so they don't get flipped to bright.
+- **Embedded frames follow the page they sit in,** so turning a site off turns
+  off its embeds too.
+- **Printing is never inverted.**
+- **Bad or old saved settings are repaired** instead of breaking anything.
+- **If the extension updates or reloads,** open pages keep their look and
+  nothing throws.
 
 ## Project layout
 
@@ -79,7 +89,8 @@ tests/                   Structural test suite (node --test)
 | Command | What it does |
 | --- | --- |
 | `npm run validate` | Structural checks on the manifest and files |
-| `npm test` | Run the test suite |
+| `npm test` | Run the structural test suite |
+| `npm run test:e2e -- /usr/bin/brave-browser` | Run the real-browser test (needs `npm install` first) |
 | `npm run icons` | Regenerate PNG icons |
 | `npm run package` | Build `dist/nightshift-<version>.zip` for sharing/stores |
 | `npm run serve` | Preview the landing site at http://localhost:8080 |

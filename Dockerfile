@@ -1,4 +1,3 @@
-# ---- Stage 1: build the site (package the extension + assemble web root) ----
 FROM alpine:3.20 AS builder
 
 RUN apk add --no-cache bash zip python3
@@ -6,10 +5,8 @@ RUN apk add --no-cache bash zip python3
 WORKDIR /app
 COPY . .
 
-# Produce build/site: static pages, icon, downloads/<zip>, version.json
 RUN bash scripts/build-site.sh
 
-# ---- Stage 2: serve the static site ----
 FROM nginx:1.27-alpine
 
 COPY --from=builder /app/build/site /usr/share/nginx/html

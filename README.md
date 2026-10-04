@@ -24,8 +24,32 @@ network access.
 3. Click **Load unpacked** and select this folder.
 4. Pin NightShift and click the moon to open the controls.
 
-Works in Chrome, Edge, Brave, and other Chromium browsers. You can use it this
-way indefinitely without ever deploying anything.
+Works in Chrome, Edge, Brave, Opera, Vivaldi, and other Chromium browsers. You
+can use it this way indefinitely without ever deploying anything.
+
+### Firefox (version 121 or newer)
+
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on** and pick `manifest.json` in this folder.
+3. If dark mode doesn't apply, open `about:addons`, choose NightShift, and
+   allow **Access your data for all websites** under Permissions. Firefox
+   asks for site access separately.
+
+Temporary add-ons are removed when Firefox restarts. For a permanent install,
+sign the package for free on addons.mozilla.org (it can stay unlisted).
+
+### Safari
+
+Safari needs a Mac with Xcode. Run
+`xcrun safari-web-extension-converter /path/to/DarkMode` to wrap it as a Safari
+extension.
+
+## Lightweight by design
+
+- One permission (`storage`) plus site access. No tracking, no network.
+- No frameworks or libraries. The whole extension is about 16 KB zipped.
+- Dark mode is a single CSS filter, so pages aren't rewritten element by element.
+- The background script only wakes for keyboard shortcuts and install.
 
 ## How it works
 

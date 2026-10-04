@@ -3,6 +3,17 @@
 All notable changes to NightShift are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - Lightweight and cross-browser
+
+### Added
+- Firefox support (121+): background scripts fallback and add-on id.
+- Firefox slider styling in the popup.
+- Tests that keep permissions minimal and the manifest cross-browser.
+
+### Changed
+- Dropped the unused `scripting` and `tabs` permissions.
+- Content script now ignores storage changes unrelated to NightShift.
+
 ## [0.2.0] - Full product
 
 ### Added

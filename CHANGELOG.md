@@ -3,6 +3,25 @@
 All notable changes to NightShift are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - Crash-proofing
+
+### Added
+- Already-dark sites are detected and left alone instead of being inverted.
+- Embedded frames follow the top page's per-site setting.
+- Blank and sandboxed frames are covered (`match_about_blank`).
+- Printing always uses the original colors.
+- Real-browser end-to-end test (`npm run test:e2e`), 18 checks.
+
+### Changed
+- Every browser call in the content script, background, and popup is guarded,
+  so a stale extension context, missing page root, or non-HTML document can't
+  throw.
+- Stored settings are validated and repaired on install, in the popup, and in
+  shortcuts.
+- Dark mode uses a `data-nightshift` attribute instead of a class, because many
+  sites overwrite the root element's classes.
+- Live updates apply only the changed values instead of re-reading storage.
+
 ## [0.3.0] - Lightweight and cross-browser
 
 ### Added

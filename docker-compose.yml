@@ -1,0 +1,8 @@
+services:
+  nightshift-site:
+    build: .
+    image: nightshift-site:latest
+    container_name: nightshift-site
+    ports:
+      - "8080:80"
+    restart: unless-stopped

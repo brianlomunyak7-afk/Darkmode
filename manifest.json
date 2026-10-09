@@ -1,26 +1,63 @@
 {
   "manifest_version": 3,
   "name": "NightShift",
-  "version": "0.1.0",
-  "description": "A free, persistent dark mode for the web.",
+  "version": "0.2.0",
+  "description": "A free, persistent dark mode for the web. Reduce eye strain on every site.",
   "permissions": [
     "storage",
     "activeTab",
-    "scripting"
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "NightShift"
+    "default_title": "NightShift — toggle dark mode",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
   },
   "background": {
     "service_worker": "background/background.js"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "css": ["content/darkmode.css"],
-      "js": ["content/darkmode.js"],
-      "run_at": "document_start"
+      "matches": [
+        "<all_urls>"
+      ],
+      "css": [
+        "content/darkmode.css"
+      ],
+      "js": [
+        "content/darkmode.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
     }
-  ]
+  ],
+  "commands": {
+    "toggle-global": {
+      "suggested_key": {
+        "default": "Alt+Shift+D"
+      },
+      "description": "Toggle NightShift dark mode on or off"
+    },
+    "toggle-site": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "Toggle dark mode for the current site"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
 }

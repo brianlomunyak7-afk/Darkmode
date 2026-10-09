@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NightShift — a free, persistent dark mode for the web. Reduce eye strain on every site.">
+  <title>NightShift — dark mode for the web</title>
+  <link rel="icon" href="icon-128.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav class="nav">
+      <div class="brand"><img src="icon-128.png" alt="" width="28" height="28"><span>NightShift</span></div>
+      <a class="nav-link" href="#install">Install</a>
+    </nav>
+    <div class="hero-inner">
+      <img class="hero-icon" src="icon-128.png" alt="NightShift icon" width="96" height="96">
+      <h1>Dark mode for every site.</h1>
+      <p class="lead">Free, private, and persistent. NightShift darkens the whole
+        web to ease eye strain, remembers your choice, and never phones home.</p>
+      <div class="cta">
+        <a class="btn btn-primary" id="download" href="#install">Get NightShift</a>
+        <a class="btn btn-ghost" href="https://github.com" target="_blank" rel="noopener">Source</a>
+      </div>
+      <p class="muted" id="version">v0.2.0 · Manifest V3 · Chrome, Edge, Brave</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="features">
+      <div class="card">
+        <h3>🌐 Every site</h3>
+        <p>Inverts page colors intelligently while keeping photos and video looking right.</p>
+      </div>
+      <div class="card">
+        <h3>🎚️ Tunable</h3>
+        <p>Dial in brightness, contrast, and warmth until it's comfortable for your eyes.</p>
+      </div>
+      <div class="card">
+        <h3>📌 Per-site control</h3>
+        <p>Keep already-dark sites untouched with a one-click per-site toggle.</p>
+      </div>
+      <div class="card">
+        <h3>🔒 Private</h3>
+        <p>No account, no tracking, no network access. Settings live in your browser.</p>
+      </div>
+      <div class="card">
+        <h3>⌨️ Shortcuts</h3>
+        <p><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> all sites · <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> this site.</p>
+      </div>
+      <div class="card">
+        <h3>💾 Persistent</h3>
+        <p>Your preferences survive restarts and sync-free, forever free to use.</p>
+      </div>
+    </section>
+
+    <section id="install" class="install">
+      <h2>Install in a minute</h2>
+      <ol>
+        <li>Download the extension: <a id="zip-link" href="#" download>nightshift.zip</a>, then unzip it (or clone the repo).</li>
+        <li>Open <code>chrome://extensions</code> in your browser.</li>
+        <li>Turn on <strong>Developer mode</strong> (top-right).</li>
+        <li>Click <strong>Load unpacked</strong> and choose the unzipped folder.</li>
+        <li>Pin NightShift and click the moon to open the controls.</li>
+      </ol>
+      <p class="muted">Works in any Chromium browser. Browser internal pages can't be themed by any extension.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>NightShift · MIT licensed · Made to be easy on the eyes.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

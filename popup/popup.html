@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="popup.css">
+  <title>NightShift</title>
+</head>
+<body>
+  <header class="header">
+    <span class="logo">🌙</span>
+    <h1 class="title">NightShift</h1>
+  </header>
+
+  <!-- Master switch -->
+  <div class="row">
+    <div class="row-label">
+      <span class="row-title">Dark mode</span>
+      <span class="row-sub">All sites</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="toggle-global">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <!-- Per-site switch -->
+  <div class="row">
+    <div class="row-label">
+      <span class="row-title">This site</span>
+      <span class="row-sub" id="site-host">—</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="toggle-site">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Tuning sliders -->
+  <div class="control">
+    <div class="control-head">
+      <label for="brightness">Brightness</label>
+      <output id="brightness-val">100%</output>
+    </div>
+    <input type="range" id="brightness" min="0.5" max="1.5" step="0.05" value="1">
+  </div>
+
+  <div class="control">
+    <div class="control-head">
+      <label for="contrast">Contrast</label>
+      <output id="contrast-val">100%</output>
+    </div>
+    <input type="range" id="contrast" min="0.5" max="1.5" step="0.05" value="1">
+  </div>
+
+  <div class="control">
+    <div class="control-head">
+      <label for="sepia">Warmth</label>
+      <output id="sepia-val">0%</output>
+    </div>
+    <input type="range" id="sepia" min="0" max="1" step="0.05" value="0">
+  </div>
+
+  <div class="divider"></div>
+
+  <button id="reset" class="reset">Reset tuning</button>
+
+  <footer class="footer">
+    <span>Alt+Shift+D: all sites</span>
+    <span>Alt+Shift+S: this site</span>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

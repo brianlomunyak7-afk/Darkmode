@@ -1,0 +1,16 @@
+# Build output
+/dist/
+/build/
+
+# Dependencies
+/node_modules/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.log
+
+# Python cache from the icon generator
+__pycache__/
+*.pyc

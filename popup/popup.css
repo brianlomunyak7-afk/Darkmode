@@ -1,19 +1,122 @@
-html.nightshift-dark {
-  background: #111 !important;
+:root {
+  --bg: #15171c;
+  --bg-elev: #1e2128;
+  --text: #e8eaed;
+  --text-dim: #9aa0a6;
+  --accent: #7aa2ff;
+  --accent-track: #3a3f4b;
+  --border: #2a2e37;
 }
 
-html.nightshift-dark body {
-  background: #111 !important;
-  color: #eee !important;
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  width: 280px;
+  padding: 14px 16px 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  user-select: none;
 }
 
-html.nightshift-dark * {
-  background-color: #111 !important;
-  color: #eee !important;
-  border-color: #333 !important;
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.logo { font-size: 18px; }
+.title { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: 0.2px; }
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+.row-label { display: flex; flex-direction: column; }
+.row-title { font-size: 14px; font-weight: 500; }
+.row-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-html.nightshift-dark img,
-html.nightshift-dark video {
-  background-color: transparent !important;
+/* Toggle switch */
+.switch { position: relative; display: inline-block; width: 42px; height: 24px; flex: none; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: var(--accent-track);
+  border-radius: 24px;
+  transition: background 0.2s;
+}
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 18px; width: 18px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::before { transform: translateX(18px); }
+.switch input:disabled + .slider { opacity: 0.4; cursor: not-allowed; }
+
+.divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+/* Sliders */
+.control { margin: 10px 0; }
+.control-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.control-head output { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--accent-track);
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+}
+
+.reset {
+  width: 100%;
+  padding: 8px;
+  background: var(--bg-elev);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.reset:hover { background: #262a33; }
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 10px;
+  color: var(--text-dim);
 }

@@ -1,11 +1,11 @@
-# NightShift 🌙
+NightShift 
 
 A free, persistent dark mode for the web. It darkens every site you visit to
 reduce eye strain, remembers your choice across pages and restarts, and lets
 you fine-tune the look or turn it off per site. No account, no tracking, no
 network access.
 
-## Features
+Features
 
 - **One master switch** — dark mode on or off for all sites.
 - **Per-site control** — keep a site light (or dark) independently.
@@ -17,7 +17,7 @@ network access.
 - **Smart color handling** — inverts page colors while keeping photos and
   videos looking normal.
 
-## Install (use it yourself)
+Install (use it yourself)
 
 1. Open `chrome://extensions` (or `edge://extensions`).
 2. Turn on **Developer mode** (top-right).
@@ -27,7 +27,7 @@ network access.
 Works in Chrome, Edge, Brave, Opera, Vivaldi, and other Chromium browsers. You
 can use it this way indefinitely without ever deploying anything.
 
-### Firefox (version 121 or newer)
+Firefox (version 121 or newer)
 
 Firefox needs its own build, because Chrome and Firefox disagree on one
 manifest setting.

@@ -17,7 +17,6 @@ html[data-nightshift="on"] {
 
 html[data-nightshift="on"] img,
 html[data-nightshift="on"] video,
-html[data-nightshift="on"] picture,
 html[data-nightshift="on"] canvas,
 html[data-nightshift="on"] iframe,
 html[data-nightshift="on"] embed,
@@ -29,7 +28,7 @@ html[data-nightshift="on"] [data-nightshift-player] {
   filter: invert(1) hue-rotate(180deg) !important;
 }
 
-html[data-nightshift="on"] :is([style*="background-image"], [data-nightshift-skip], [data-nightshift-player]) :is(img, video, picture, canvas, iframe, embed, object, svg image, [style*="background-image"], [data-nightshift-skip], [data-nightshift-player]) {
+html[data-nightshift="on"] :is([style*="background-image"], [data-nightshift-skip], [data-nightshift-player]) :is(img, video, canvas, iframe, embed, object, svg image, [style*="background-image"], [data-nightshift-skip], [data-nightshift-player]) {
   filter: none !important;
 }
 
@@ -42,7 +41,6 @@ html[data-nightshift="on"] :fullscreen * {
   html[data-nightshift="on"],
   html[data-nightshift="on"] img,
   html[data-nightshift="on"] video,
-  html[data-nightshift="on"] picture,
   html[data-nightshift="on"] canvas,
   html[data-nightshift="on"] iframe,
   html[data-nightshift="on"] embed,

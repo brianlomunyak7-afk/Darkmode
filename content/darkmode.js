@@ -214,12 +214,33 @@
     }
   }
 
+  const BGIMG = "data-nightshift-bgimg";
+  const RE_URL = /url\(/i;
+  const RE_GRADIENT = /gradient\(/i;
+
+  function markBgImages() {
+    const all = document.body ? document.body.getElementsByTagName("*") : [];
+    const limit = Math.min(all.length, 500);
+    let marked = 0;
+    for (let i = 0; i < limit && marked < 50; i++) {
+      const el = all[i];
+      if (el.hasAttribute(BGIMG) || MEDIA.has(el.tagName)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 32 || r.height < 32) continue;
+      const bg = getComputedStyle(el).backgroundImage;
+      if (!bg || bg === "none" || !RE_URL.test(bg) || RE_GRADIENT.test(bg)) continue;
+      el.setAttribute(BGIMG, "");
+      marked++;
+    }
+  }
+
   function detectNativeDark(full) {
     if (!document.documentElement || !document.body) return;
     if (full !== false) readRootInfo();
     let dark = false;
     try {
       markPlayers();
+      markBgImages();
       dark = looksDark();
     } catch (e) {
       dark = false;

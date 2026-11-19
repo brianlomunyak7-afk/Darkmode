@@ -79,6 +79,14 @@ test("profile and avatar media remain natural", () => {
     "dynamic profile and avatar elements must be detected");
 });
 
+test("skills.google is recognized as a native-dark host", () => {
+  const js = read("content/darkmode.js");
+  assert.match(js, /skills\.google/,
+    "Google Skills must bypass NightShift when it already provides dark mode");
+  assert.match(js, /NATIVE_DARK_HOSTS/,
+    "native-dark hosts must use the host guard");
+});
+
 test("keyboard commands are declared", () => {
   assert.ok(manifest.commands["toggle-global"]);
   assert.ok(manifest.commands["toggle-site"]);

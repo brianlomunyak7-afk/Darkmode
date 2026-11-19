@@ -76,6 +76,17 @@ test("nightshift css applies and reverses media filters", () => {
     "media must be protected from the page filter");
 });
 
+test("profile and avatar media remain natural", () => {
+  const css = read("content/darkmode.css");
+  const js = read("content/darkmode.js");
+  assert.match(css, /\[class\*="avatar" i\]/,
+    "avatar containers must receive compensating media filters");
+  assert.match(css, /\[aria-label\*="profile" i\]/,
+    "profile controls must receive compensating media filters");
+  assert.match(js, /markVisualMedia/,
+    "dynamic profile and avatar elements must be detected");
+});
+
 test("keyboard commands are declared", () => {
   assert.ok(manifest.commands["toggle-global"]);
   assert.ok(manifest.commands["toggle-site"]);

@@ -267,6 +267,29 @@
     }
   }
 
+  function markVisualMedia() {
+    const all = document.body ? document.body.getElementsByTagName("*") : [];
+    const limit = Math.min(all.length, 750);
+    for (let i = 0; i < limit; i++) {
+      const el = all[i];
+      if (el.hasAttribute("data-nightshift-skip")) continue;
+      const tag = String(el.tagName).toUpperCase();
+      if (MEDIA.has(tag)) {
+        el.setAttribute("data-nightshift-skip", "");
+        continue;
+      }
+      const role = (el.getAttribute("role") || "").toLowerCase();
+      const label = (el.getAttribute("aria-label") || "").toLowerCase();
+      const name = [
+        el.id,
+        el.className && typeof el.className === "string" ? el.className : ""
+      ].join(" ").toLowerCase();
+      if (role === "img" || /(^|[-_\s])(avatar|profile|portrait|headshot)([-_\s]|$)/.test(name + " " + label)) {
+        el.setAttribute("data-nightshift-skip", "");
+      }
+    }
+  }
+
   function detectNativeDark(full) {
     if (!document.documentElement || !document.body) return;
     if (full !== false) readRootInfo();
@@ -274,6 +297,7 @@
     try {
       markPlayers();
       markBgImages();
+      markVisualMedia();
       dark = looksDark();
     } catch (e) {
       dark = false;
@@ -294,9 +318,17 @@
   let quietTimer = 0;
   let firstChange = 0;
   function onDomChange() {
-    // High-frequency app updates are already watched with load/theme timers.
-    // Re-reading theme state here can cause needless style churn.
-    syncBlankFrames();
+    const now = Date.now();
+    if (!firstChange) firstChange = now;
+    clearTimeout(quietTimer);
+    const wait = now - firstChange > 3000 ? 0 : 800;
+    quietTimer = setTimeout(() => {
+      firstChange = 0;
+      markVisualMedia();
+      markBgImages();
+      syncBlankFrames();
+      detectNativeDark(false);
+    }, wait);
   }
 
   function watchThemeSwitches() {

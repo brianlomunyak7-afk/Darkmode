@@ -30,6 +30,15 @@ html[data-nightshift="on"] [data-nightshift-bgimg] {
   filter: invert(1) hue-rotate(180deg) !important;
 }
 
+html[data-nightshift="on"] [aria-label*="profile" i],
+html[data-nightshift="on"] [aria-label*="avatar" i],
+html[data-nightshift="on"] [class*="avatar" i],
+html[data-nightshift="on"] [class*="profile" i],
+html[data-nightshift="on"] [id*="avatar" i],
+html[data-nightshift="on"] [role="img"] {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+
 html[data-nightshift="on"] :is([style*="background-image"], [data-nightshift-skip], [data-nightshift-player], [data-nightshift-bgimg]) :is(img, picture, video, canvas, iframe, embed, object, svg image, [style*="background-image"], [data-nightshift-skip], [data-nightshift-player], [data-nightshift-bgimg]) {
   filter: none !important;
 }

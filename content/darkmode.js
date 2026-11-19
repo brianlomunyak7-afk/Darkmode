@@ -35,6 +35,7 @@
 
   const host = topHost();
   const CACHE_KEY = "nightshift:native-dark";
+  const NATIVE_DARK_HOSTS = new Set(["skills.google", "www.skills.google"]);
 
   let state = Object.assign({}, DEFAULTS);
   let nativeDark = false;
@@ -55,6 +56,7 @@
 
   function wanted(s) {
     if (!s.enabled || nativeDark) return false;
+    if (NATIVE_DARK_HOSTS.has(host)) return false;
     return !(host && sites(s.disabledSites).includes(host));
   }
 

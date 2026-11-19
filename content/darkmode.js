@@ -85,10 +85,31 @@
     return true;
   }
 
+  function syncBlankFrames() {
+    if (!isTop || typeof document.getElementsByTagName !== "function") return;
+    const frames = document.getElementsByTagName("iframe");
+    for (let i = 0; i < frames.length; i++) {
+      try {
+        const frameDoc = frames[i].contentDocument;
+        if (!frameDoc || !frameDoc.documentElement) continue;
+        const applyFrame = () => {
+          if (wanted(state) && !fullscreenOverride) {
+            frameDoc.documentElement.setAttribute(ATTR, "on");
+          } else {
+            frameDoc.documentElement.removeAttribute(ATTR);
+          }
+        };
+        applyFrame();
+        frames[i].addEventListener("load", applyFrame, { once: true });
+      } catch (e) {}
+    }
+  }
+
   function render() {
     if (!apply(state)) {
       document.addEventListener("DOMContentLoaded", () => apply(state), { once: true });
     }
+    syncBlankFrames();
   }
 
   let probe = null;
@@ -273,11 +294,9 @@
   let quietTimer = 0;
   let firstChange = 0;
   function onDomChange() {
-    const now = Date.now();
-    if (!firstChange) firstChange = now;
-    clearTimeout(quietTimer);
-    const wait = now - firstChange > 3000 ? 0 : 800;
-    quietTimer = setTimeout(() => { firstChange = 0; detectNativeDark(false); }, wait);
+    // High-frequency app updates are already watched with load/theme timers.
+    // Re-reading theme state here can cause needless style churn.
+    syncBlankFrames();
   }
 
   function watchThemeSwitches() {
@@ -330,6 +349,7 @@
 
   function onReady() {
     detectNativeDark();
+    syncBlankFrames();
     watchThemeSwitches();
   }
 

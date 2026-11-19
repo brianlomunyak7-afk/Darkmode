@@ -68,6 +68,14 @@ test("content css only activates behind the nightshift-on class", () => {
     "dark styles must be scoped so disabled pages are untouched");
 });
 
+test("nightshift css applies and reverses media filters", () => {
+  const css = read("content/darkmode.css");
+  assert.match(css, /filter:\s*invert\(0\.94\)/,
+    "enabled pages must receive a real dark-mode filter");
+  assert.match(css, /html\[data-nightshift="on"\]\s+img/,
+    "media must be protected from the page filter");
+});
+
 test("profile and avatar media remain natural", () => {
   const css = read("content/darkmode.css");
   const js = read("content/darkmode.js");

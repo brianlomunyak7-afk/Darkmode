@@ -1,19 +1,30 @@
+/*
+ * NightShift v2 — Smart dark-mode engine
+ *
+ * Approach: Bright backgrounds → dark. Dark text → light.
+ * Images, videos, and all media → completely untouched.
+ *
+ * This CSS sets the base dark layer (html/body, scrollbars, forms, selection).
+ * The companion darkmode.js handles per-element color analysis and overrides.
+ */
+
 html[data-nightshift="on"] {
   --ns-brightness: 1;
   --ns-contrast: 1;
   --ns-sepia: 0;
 
-  filter:
-    invert(1)
-    hue-rotate(180deg)
-    brightness(var(--ns-brightness))
-    contrast(var(--ns-contrast))
-    sepia(var(--ns-sepia)) !important;
-
-  background-color: #ffffff !important;
-
-  color-scheme: light !important;
+  color-scheme: dark !important;
+  background-color: #181a1b !important;
+  color: #e8e6e3 !important;
+  filter: invert(0.94) hue-rotate(180deg) brightness(var(--ns-brightness)) contrast(var(--ns-contrast)) sepia(var(--ns-sepia)) !important;
 }
+
+html[data-nightshift="on"] body {
+  background-color: #181a1b !important;
+  color: #e8e6e3 !important;
+}
+
+/* Keep photos, video, embeds, and canvas content in their original colors. */
 
 html[data-nightshift="on"] img,
 html[data-nightshift="on"] picture,
@@ -23,12 +34,13 @@ html[data-nightshift="on"] svg,
 html[data-nightshift="on"] iframe,
 html[data-nightshift="on"] embed,
 html[data-nightshift="on"] object,
-html[data-nightshift="on"] svg image,
-html[data-nightshift="on"] [style*="background-image"],
-html[data-nightshift="on"] [data-nightshift-skip],
-html[data-nightshift="on"] [data-nightshift-player],
 html[data-nightshift="on"] [data-nightshift-bgimg] {
-  filter: invert(1) hue-rotate(180deg) !important;
+  filter: invert(0.94) hue-rotate(180deg) brightness(var(--ns-brightness)) contrast(var(--ns-contrast)) sepia(var(--ns-sepia)) !important;
+}
+
+html[data-nightshift="on"] [data-nightshift-player] {
+  background-color: #000 !important;
+  filter: invert(0) !important;
 }
 
 html[data-nightshift="on"] [aria-label*="profile" i],
@@ -44,10 +56,65 @@ html[data-nightshift="on"] :is([style*="background-image"], [data-nightshift-ski
   filter: none !important;
 }
 
+/* ── Scrollbars ── */
+
+html[data-nightshift="on"] * {
+  scrollbar-color: #454a4d #202325;
+}
+
+html[data-nightshift="on"] ::-webkit-scrollbar {
+  background: #202325;
+}
+
+html[data-nightshift="on"] ::-webkit-scrollbar-thumb {
+  background: #454a4d;
+  border-radius: 4px;
+}
+
+html[data-nightshift="on"] ::-webkit-scrollbar-thumb:hover {
+  background: #5a5f62;
+}
+
+/* ── Form elements ── */
+
+html[data-nightshift="on"] input,
+html[data-nightshift="on"] textarea,
+html[data-nightshift="on"] select,
+html[data-nightshift="on"] button,
+html[data-nightshift="on"] details,
+html[data-nightshift="on"] summary,
+html[data-nightshift="on"] meter,
+html[data-nightshift="on"] progress {
+  color-scheme: dark;
+}
+
+/* ── Selection ── */
+
+html[data-nightshift="on"] ::selection {
+  background-color: #004daa !important;
+  color: #e8e6e3 !important;
+}
+
+html[data-nightshift="on"] ::placeholder {
+  color: #9b9b9b !important;
+  opacity: 1 !important;
+}
+
+/* ── Horizontal rules ── */
+
+html[data-nightshift="on"] hr {
+  border-color: #3a3f4b !important;
+  color: #3a3f4b !important;
+}
+
+/* ── Fullscreen — show true colors ── */
+
 html[data-nightshift="on"] :fullscreen,
 html[data-nightshift="on"] :fullscreen * {
-  filter: none !important;
+  color-scheme: initial !important;
 }
+
+/* ── Print — never darken ── */
 
 @media print {
   html[data-nightshift="on"],
@@ -66,8 +133,14 @@ html[data-nightshift="on"] :fullscreen * {
   html[data-nightshift="on"] [data-nightshift-bgimg] {
     filter: none !important;
   }
-  html[data-nightshift="on"] {
+  html[data-nightshift="on"] body {
     background-color: transparent !important;
+    color: initial !important;
     color-scheme: normal !important;
+  }
+  [data-ns-styled] {
+    background-color: unset !important;
+    color: unset !important;
+    border-color: unset !important;
   }
 }

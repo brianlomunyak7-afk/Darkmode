@@ -36,6 +36,7 @@
   const host = topHost();
   const CACHE_KEY = "nightshift:native-dark";
   const NATIVE_DARK_HOSTS = new Set(["skills.google", "www.skills.google"]);
+  let fullscreenOverride = false;
 
   let state = Object.assign({}, DEFAULTS);
   let nativeDark = false;
@@ -48,6 +49,17 @@
   function clamp(n, lo, hi, dflt) {
     n = Number(n);
     return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt;
+  }
+
+  function sanitize(s) {
+    s = s || {};
+    return {
+      enabled: typeof s.enabled === "boolean" ? s.enabled : DEFAULTS.enabled,
+      disabledSites: sites(s.disabledSites),
+      brightness: clamp(s.brightness, 0.5, 1.5, 1),
+      contrast: clamp(s.contrast, 0.5, 1.5, 1),
+      sepia: clamp(s.sepia, 0, 1, 0)
+    };
   }
 
   function sites(v) {
@@ -69,17 +81,10 @@
         root.style.setProperty("--ns-contrast", clamp(s.contrast, 0.5, 1.5, 1));
         root.style.setProperty("--ns-sepia", clamp(s.sepia, 0, 1, 0));
       }
-      if (wanted(s)) root.setAttribute(ATTR, "on");
+      if (wanted(s) && !fullscreenOverride) root.setAttribute(ATTR, "on");
       else root.removeAttribute(ATTR);
     } catch (e) {}
     return true;
-  }
-
-  function render() {
-    if (!apply(state)) {
-      document.addEventListener("DOMContentLoaded", () => apply(state), { once: true });
-    }
-    syncBlankFrames();
   }
 
   function syncBlankFrames() {
@@ -90,13 +95,23 @@
         const frameDoc = frames[i].contentDocument;
         if (!frameDoc || !frameDoc.documentElement) continue;
         const applyFrame = () => {
-          if (wanted(state)) frameDoc.documentElement.setAttribute(ATTR, "on");
-          else frameDoc.documentElement.removeAttribute(ATTR);
+          if (wanted(state) && !fullscreenOverride) {
+            frameDoc.documentElement.setAttribute(ATTR, "on");
+          } else {
+            frameDoc.documentElement.removeAttribute(ATTR);
+          }
         };
         applyFrame();
         frames[i].addEventListener("load", applyFrame, { once: true });
       } catch (e) {}
     }
+  }
+
+  function render() {
+    if (!apply(state)) {
+      document.addEventListener("DOMContentLoaded", () => apply(state), { once: true });
+    }
+    syncBlankFrames();
   }
 
   let probe = null;
@@ -334,7 +349,7 @@
     try {
       ext.storage.local.get(DEFAULTS, (stored) => {
         if (ext.runtime && ext.runtime.lastError) return;
-        state = Object.assign({}, DEFAULTS, stored || {});
+        state = sanitize(stored);
         render();
       });
     } catch (e) {}
@@ -352,12 +367,23 @@
         state[key] = v === undefined ? DEFAULTS[key] : v;
         touched = true;
       }
-      if (touched) render();
+      if (touched) {
+        state = sanitize(state);
+        render();
+      }
+    });
+  } catch (e) {}
+
+  try {
+    document.addEventListener("fullscreenchange", () => {
+      fullscreenOverride = !!document.fullscreenElement;
+      render();
     });
   } catch (e) {}
 
   function onReady() {
     detectNativeDark();
+    syncBlankFrames();
     watchThemeSwitches();
   }
 

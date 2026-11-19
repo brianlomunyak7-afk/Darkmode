@@ -68,6 +68,17 @@ test("content css only activates behind the nightshift-on class", () => {
     "dark styles must be scoped so disabled pages are untouched");
 });
 
+test("profile and avatar media remain natural", () => {
+  const css = read("content/darkmode.css");
+  const js = read("content/darkmode.js");
+  assert.match(css, /\[class\*="avatar" i\]/,
+    "avatar containers must receive compensating media filters");
+  assert.match(css, /\[aria-label\*="profile" i\]/,
+    "profile controls must receive compensating media filters");
+  assert.match(js, /markVisualMedia/,
+    "dynamic profile and avatar elements must be detected");
+});
+
 test("keyboard commands are declared", () => {
   assert.ok(manifest.commands["toggle-global"]);
   assert.ok(manifest.commands["toggle-site"]);

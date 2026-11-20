@@ -3,14 +3,19 @@ const DEFAULTS = {
   disabledSites: [],
   brightness: 1,
   contrast: 1,
-  sepia: 0
+  sepia: 0,
+  shade: 0
 };
+
+const SHADE_ON = 0.8;
 
 const $ = (id) => document.getElementById(id);
 const el = {
   global: $("toggle-global"),
   site: $("toggle-site"),
   siteHost: $("site-host"),
+  shade: $("toggle-shade"),
+  shadeLabel: $("shade-label"),
   brightness: $("brightness"),
   contrast: $("contrast"),
   sepia: $("sepia"),
@@ -36,7 +41,8 @@ function sanitize(s) {
       : [],
     brightness: clamp(s.brightness, 0.5, 1.5, 1),
     contrast: clamp(s.contrast, 0.5, 1.5, 1),
-    sepia: clamp(s.sepia, 0, 1, 0)
+    sepia: clamp(s.sepia, 0, 1, 0),
+    shade: clamp(s.shade, 0, 1, 0)
   };
 }
 
@@ -85,6 +91,9 @@ function render(state) {
   el.site.disabled = !supported || !state.enabled;
   el.siteHost.textContent = supported ? currentHost : "unavailable here";
 
+  el.shade.checked = state.shade > 0;
+  el.shadeLabel.textContent = state.shade > 0 ? "Gray" : "Black";
+
   for (const key of ["brightness", "contrast", "sepia"]) {
     el[key].value = state[key];
     el[key + "Val"].textContent = pct(state[key]);
@@ -105,6 +114,11 @@ el.site.addEventListener("change", async () => {
   await save({ disabledSites: [...sites] });
 });
 
+el.shade.addEventListener("change", async () => {
+  await save({ shade: el.shade.checked ? SHADE_ON : 0 });
+  render(await getState());
+});
+
 for (const key of ["brightness", "contrast", "sepia"]) {
   const input = el[key];
   const output = el[key + "Val"];
@@ -113,7 +127,7 @@ for (const key of ["brightness", "contrast", "sepia"]) {
 }
 
 el.reset.addEventListener("click", async () => {
-  await save({ brightness: 1, contrast: 1, sepia: 0 });
+  await save({ brightness: 1, contrast: 1, sepia: 0, shade: 0 });
   render(await getState());
 });
 

@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const ext = globalThis.chrome;
+  const ext = globalThis.chrome || globalThis.browser;
   if (!ext || !ext.storage || !ext.storage.local) return;
 
   try {
@@ -16,7 +16,8 @@
     disabledSites: [],
     brightness: 1,
     contrast: 1,
-    sepia: 0
+    sepia: 0,
+    shade: 0
   };
   const ATTR = "data-nightshift";
 
@@ -35,15 +36,14 @@
 
   const host = topHost();
   const CACHE_KEY = "nightshift:native-dark";
-<<<<<<< HEAD
-  const NATIVE_DARK_HOSTS = new Set(["skills.google", "www.skills.google"]);
+  const NATIVE_DARK_HOSTS = new Set();
   let fullscreenOverride = false;
-=======
->>>>>>> 7438bc7 (modify the darkmode.js folder)
 
   let state = Object.assign({}, DEFAULTS);
   let nativeDark = false;
   try { nativeDark = localStorage.getItem(CACHE_KEY) === "1"; } catch (e) {}
+
+  let autoTune = { brightness: 1, contrast: 1 };
 
   function alive() {
     try { return !!(ext.runtime && ext.runtime.id); } catch (e) { return false; }
@@ -61,7 +61,8 @@
       disabledSites: sites(s.disabledSites),
       brightness: clamp(s.brightness, 0.5, 1.5, 1),
       contrast: clamp(s.contrast, 0.5, 1.5, 1),
-      sepia: clamp(s.sepia, 0, 1, 0)
+      sepia: clamp(s.sepia, 0, 1, 0),
+      shade: clamp(s.shade, 0, 1, 0)
     };
   }
 
@@ -71,6 +72,7 @@
 
   function wanted(s) {
     if (!s.enabled || nativeDark) return false;
+    if (host && NATIVE_DARK_HOSTS.has(host)) return false;
     return !(host && sites(s.disabledSites).includes(host));
   }
 
@@ -79,8 +81,11 @@
     if (!root) return false;
     try {
       if (root.style && typeof root.style.setProperty === "function") {
-        root.style.setProperty("--ns-brightness", clamp(s.brightness, 0.5, 1.5, 1));
-        root.style.setProperty("--ns-contrast", clamp(s.contrast, 0.5, 1.5, 1));
+        const sh = clamp(s.shade, 0, 1, 0);
+        const b = clamp(s.brightness * autoTune.brightness * (1 + sh * 0.15), 0.5, 1.5, 1);
+        const c = clamp(s.contrast * autoTune.contrast * (1 - sh * 0.4), 0.5, 1.5, 1);
+        root.style.setProperty("--ns-brightness", b);
+        root.style.setProperty("--ns-contrast", c);
         root.style.setProperty("--ns-sepia", clamp(s.sepia, 0, 1, 0));
       }
       if (wanted(s) && !fullscreenOverride) root.setAttribute(ATTR, "on");
@@ -156,7 +161,7 @@
     return res;
   }
 
-  const MEDIA = new Set(["IMG", "VIDEO", "CANVAS", "PICTURE", "SVG", "IFRAME", "EMBED", "OBJECT"]);
+  const MEDIA = new Set(["IMG", "VIDEO", "CANVAS", "PICTURE", "SVG", "FIGURE", "IFRAME", "EMBED", "OBJECT"]);
   const PLAYER = "data-nightshift-player";
 
   let rootInfo = { bg: "", scheme: "" };
@@ -271,6 +276,9 @@
     }
   }
 
+  const USER_IMG_ATTR = "data-nightshift-userimg";
+  const RE_USER_IMG = /(^|[-_\s])(avatar|profile|portrait|headshot|photo|thumbnail|logo|user-icon|account)([-_\s]|$)/;
+
   function markVisualMedia() {
     const all = document.body ? document.body.getElementsByTagName("*") : [];
     const limit = Math.min(all.length, 750);
@@ -288,10 +296,86 @@
         el.id,
         el.className && typeof el.className === "string" ? el.className : ""
       ].join(" ").toLowerCase();
-      if (role === "img" || /(^|[-_\s])(avatar|profile|portrait|headshot)([-_\s]|$)/.test(name + " " + label)) {
+      if (role === "img" || RE_USER_IMG.test(name + " " + label)) {
         el.setAttribute("data-nightshift-skip", "");
       }
+      if (/account|user.?menu|profile.?btn|profile.?button/.test(label + " " + name)) {
+        el.setAttribute(USER_IMG_ATTR, "");
+      }
     }
+
+    const imgs = document.body ? document.body.getElementsByTagName("img") : [];
+    for (let i = 0; i < imgs.length; i++) {
+      const img = imgs[i];
+      if (img.hasAttribute(USER_IMG_ATTR)) continue;
+      const src = (img.src || "").toLowerCase();
+      const alt = (img.alt || "").toLowerCase();
+      if (/googleusercontent|gravatar|avatars|profile.?photo|user.?image/.test(src) || RE_USER_IMG.test(alt)) {
+        img.setAttribute(USER_IMG_ATTR, "");
+      }
+    }
+  }
+
+  const DARK_ATTR = "data-nightshift-dark";
+
+  function markDarkContainers() {
+    if (!document.body) return;
+    const all = document.body.getElementsByTagName("*");
+    const limit = Math.min(all.length, 1000);
+    let marked = 0;
+    for (let i = 0; i < limit && marked < 30; i++) {
+      const el = all[i];
+      const tag = String(el.tagName).toUpperCase();
+      if (MEDIA.has(tag) || el.hasAttribute(DARK_ATTR)) continue;
+      if (el.hasAttribute(PLAYER) || el.hasAttribute(BGIMG)) continue;
+      if (el.closest("[" + DARK_ATTR + "]")) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width * r.height < 4000) continue;
+      const bg = getComputedStyle(el).backgroundColor;
+      const c = parseColor(bg);
+      if (!c || c.a < 0.5) continue;
+      if (c.lum < 0.25) {
+        el.setAttribute(DARK_ATTR, "");
+        marked++;
+      }
+    }
+  }
+
+  function computeAutoTune() {
+    const w = innerWidth;
+    const h = innerHeight;
+    if (w <= 0 || h <= 0 || typeof document.elementFromPoint !== "function") return;
+
+    let totalLum = 0;
+    let samples = 0;
+    let maxLum = 0;
+    let minLum = 1;
+
+    const steps = [0.1, 0.3, 0.5, 0.7, 0.9];
+    for (const fy of steps) {
+      for (const fx of steps) {
+        const el = document.elementFromPoint(w * fx, h * fy);
+        if (!el) continue;
+        const c = paintedBg(el, w * h);
+        if (!c || c.a < 0.5) continue;
+        totalLum += c.lum;
+        samples++;
+        if (c.lum > maxLum) maxLum = c.lum;
+        if (c.lum < minLum) minLum = c.lum;
+      }
+    }
+
+    if (samples < 3) {
+      autoTune.brightness = 1;
+      autoTune.contrast = 1;
+      return;
+    }
+
+    const avgLum = totalLum / samples;
+    const lumRange = maxLum - minLum;
+
+    autoTune.brightness = clamp(1.0 + avgLum * 0.1, 1.0, 1.12, 1.0);
+    autoTune.contrast = clamp(1.0 - lumRange * 0.08, 0.92, 1.0, 1.0);
   }
 
   function detectNativeDark(full) {
@@ -302,6 +386,8 @@
       markPlayers();
       markBgImages();
       markVisualMedia();
+      markDarkContainers();
+      computeAutoTune();
       dark = looksDark();
     } catch (e) {
       dark = false;
@@ -309,8 +395,8 @@
     if (dark !== nativeDark) {
       nativeDark = dark;
       try { localStorage.setItem(CACHE_KEY, dark ? "1" : "0"); } catch (e) {}
-      render();
     }
+    render();
   }
 
   let pending = 0;
@@ -330,6 +416,7 @@
       firstChange = 0;
       markVisualMedia();
       markBgImages();
+      markDarkContainers();
       syncBlankFrames();
       detectNativeDark(false);
     }, wait);

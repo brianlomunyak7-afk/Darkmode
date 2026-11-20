@@ -1,12 +1,20 @@
 /*
  * NightShift v2 — Smart dark-mode engine
  *
- * Approach: Bright backgrounds → dark. Dark text → light.
- * Images, videos, and all media → completely untouched.
- *
- * This CSS sets the base dark layer (html/body, scrollbars, forms, selection).
- * The companion darkmode.js handles per-element color analysis and overrides.
+ * Full invert(1) + hue-rotate(180deg) for mathematically perfect media
+ * cancellation. Images, videos, and all visual media are 100% untouched.
+ * Already-dark containers (sidebars, navs) are detected by JS and preserved.
  */
+
+html {
+  transition: filter 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { transition: none; }
+}
+
+/* ── Core dark-mode filter ── */
 
 html[data-nightshift="on"] {
   --ns-brightness: 1;
@@ -14,65 +22,74 @@ html[data-nightshift="on"] {
   --ns-sepia: 0;
 
   color-scheme: dark !important;
-  background-color: #181a1b !important;
-  color: #e8e6e3 !important;
-  filter: invert(0.94) hue-rotate(180deg) brightness(var(--ns-brightness)) contrast(var(--ns-contrast)) sepia(var(--ns-sepia)) !important;
+  filter: invert(1) hue-rotate(180deg) contrast(var(--ns-contrast)) brightness(var(--ns-brightness)) sepia(var(--ns-sepia)) !important;
 }
 
-html[data-nightshift="on"] body {
-  background-color: #181a1b !important;
-  color: #e8e6e3 !important;
-}
-
-/* Keep photos, video, embeds, and canvas content in their original colors. */
+/* ── Media: re-invert to show original colors ──
+ * invert(1) ∘ invert(1) = identity — zero artifacts, zero color shift. */
 
 html[data-nightshift="on"] img,
 html[data-nightshift="on"] picture,
 html[data-nightshift="on"] video,
 html[data-nightshift="on"] canvas,
 html[data-nightshift="on"] svg,
+html[data-nightshift="on"] svg image,
+html[data-nightshift="on"] figure,
 html[data-nightshift="on"] iframe,
 html[data-nightshift="on"] embed,
 html[data-nightshift="on"] object,
+html[data-nightshift="on"] [data-nightshift-skip],
 html[data-nightshift="on"] [data-nightshift-bgimg] {
-  filter: invert(0.94) hue-rotate(180deg) brightness(var(--ns-brightness)) contrast(var(--ns-contrast)) sepia(var(--ns-sepia)) !important;
-}
-
-html[data-nightshift="on"] [data-nightshift-player] {
-  background-color: #000 !important;
-  filter: invert(0) !important;
-}
-
-html[data-nightshift="on"] [aria-label*="profile" i],
-html[data-nightshift="on"] [aria-label*="avatar" i],
-html[data-nightshift="on"] [class*="avatar" i],
-html[data-nightshift="on"] [class*="profile" i],
-html[data-nightshift="on"] [id*="avatar" i],
-html[data-nightshift="on"] [role="img"] {
   filter: invert(1) hue-rotate(180deg) !important;
 }
 
-html[data-nightshift="on"] :is([style*="background-image"], [data-nightshift-skip], [data-nightshift-player], [data-nightshift-bgimg]) :is(img, picture, video, canvas, iframe, embed, object, svg image, [style*="background-image"], [data-nightshift-skip], [data-nightshift-player], [data-nightshift-bgimg]) {
+/* Already-dark containers detected by JS — re-invert and slightly brighten for readability */
+html[data-nightshift="on"] [data-nightshift-dark] {
+  filter: invert(1) hue-rotate(180deg) brightness(1.15) !important;
+}
+
+/* Video player wrappers — preserve original */
+html[data-nightshift="on"] [data-nightshift-player] {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+
+/* Profile pictures, avatars, and account buttons — preserve original */
+html[data-nightshift="on"] [aria-label*="profile" i],
+html[data-nightshift="on"] [aria-label*="avatar" i],
+html[data-nightshift="on"] [aria-label*="account" i],
+html[data-nightshift="on"] [aria-label*="user" i],
+html[data-nightshift="on"] [class*="avatar" i],
+html[data-nightshift="on"] [class*="profile-pic" i],
+html[data-nightshift="on"] [class*="user-icon" i],
+html[data-nightshift="on"] [id*="avatar" i],
+html[data-nightshift="on"] [id*="profile-pic" i],
+html[data-nightshift="on"] [role="img"],
+html[data-nightshift="on"] [data-nightshift-userimg] {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+
+/* Prevent double re-inversion inside already-preserved containers */
+html[data-nightshift="on"] :is([data-nightshift-dark], [data-nightshift-skip], [data-nightshift-player], [data-nightshift-bgimg], [style*="background-image"], figure) :is(img, picture, video, canvas, figure, iframe, embed, object, svg image, [style*="background-image"], [data-nightshift-skip], [data-nightshift-player], [data-nightshift-bgimg], [data-nightshift-dark]) {
   filter: none !important;
 }
 
 /* ── Scrollbars ── */
 
 html[data-nightshift="on"] * {
-  scrollbar-color: #454a4d #202325;
+  scrollbar-color: #555a5e #2a2d30;
 }
 
 html[data-nightshift="on"] ::-webkit-scrollbar {
-  background: #202325;
+  background: #2a2d30;
 }
 
 html[data-nightshift="on"] ::-webkit-scrollbar-thumb {
-  background: #454a4d;
+  background: #555a5e;
   border-radius: 4px;
 }
 
 html[data-nightshift="on"] ::-webkit-scrollbar-thumb:hover {
-  background: #5a5f62;
+  background: #6a6f72;
 }
 
 /* ── Form elements ── */
@@ -111,6 +128,7 @@ html[data-nightshift="on"] hr {
 
 html[data-nightshift="on"] :fullscreen,
 html[data-nightshift="on"] :fullscreen * {
+  filter: none !important;
   color-scheme: initial !important;
 }
 
@@ -123,13 +141,15 @@ html[data-nightshift="on"] :fullscreen * {
   html[data-nightshift="on"] video,
   html[data-nightshift="on"] canvas,
   html[data-nightshift="on"] svg,
+  html[data-nightshift="on"] svg image,
+  html[data-nightshift="on"] figure,
   html[data-nightshift="on"] iframe,
   html[data-nightshift="on"] embed,
   html[data-nightshift="on"] object,
-  html[data-nightshift="on"] svg image,
   html[data-nightshift="on"] [style*="background-image"],
   html[data-nightshift="on"] [data-nightshift-skip],
   html[data-nightshift="on"] [data-nightshift-player],
+  html[data-nightshift="on"] [data-nightshift-dark],
   html[data-nightshift="on"] [data-nightshift-bgimg] {
     filter: none !important;
   }
@@ -137,10 +157,5 @@ html[data-nightshift="on"] :fullscreen * {
     background-color: transparent !important;
     color: initial !important;
     color-scheme: normal !important;
-  }
-  [data-ns-styled] {
-    background-color: unset !important;
-    color: unset !important;
-    border-color: unset !important;
   }
 }

@@ -35,8 +35,11 @@
 
   const host = topHost();
   const CACHE_KEY = "nightshift:native-dark";
+<<<<<<< HEAD
   const NATIVE_DARK_HOSTS = new Set(["skills.google", "www.skills.google"]);
   let fullscreenOverride = false;
+=======
+>>>>>>> 7438bc7 (modify the darkmode.js folder)
 
   let state = Object.assign({}, DEFAULTS);
   let nativeDark = false;
@@ -68,7 +71,6 @@
 
   function wanted(s) {
     if (!s.enabled || nativeDark) return false;
-    if (NATIVE_DARK_HOSTS.has(host)) return false;
     return !(host && sites(s.disabledSites).includes(host));
   }
 

@@ -3,7 +3,8 @@ const DEFAULTS = {
   disabledSites: [],
   brightness: 1,
   contrast: 1,
-  sepia: 0
+  sepia: 0,
+  shade: 0
 };
 
 function clamp(n, lo, hi, dflt) {

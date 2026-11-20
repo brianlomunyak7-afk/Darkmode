@@ -70,7 +70,7 @@ test("content css only activates behind the nightshift-on class", () => {
 
 test("nightshift css applies and reverses media filters", () => {
   const css = read("content/darkmode.css");
-  assert.match(css, /filter:\s*invert\(0\.94\)/,
+  assert.match(css, /filter:\s*invert\(1\)/,
     "enabled pages must receive a real dark-mode filter");
   assert.match(css, /html\[data-nightshift="on"\]\s+img/,
     "media must be protected from the page filter");

@@ -1,4 +1,4 @@
-NightShift 
+# NightShift
 
 A free, persistent dark mode for the web. It darkens every site you visit to
 reduce eye strain, remembers your choice across pages and restarts, and lets
@@ -19,13 +19,19 @@ Features
 
 Install (use it yourself)
 
-1. Open `chrome://extensions` (or `edge://extensions`).
+1. Open the extensions page:
+   - Chrome: `chrome://extensions`
+   - Edge: `edge://extensions`
+   - Brave: `brave://extensions`
+   - Opera: `opera://extensions`
+   - Vivaldi: `vivaldi://extensions`
 2. Turn on **Developer mode** (top-right).
 3. Click **Load unpacked** and select this folder.
 4. Pin NightShift and click the moon to open the controls.
 
-Works in Chrome, Edge, Brave, Opera, Vivaldi, and other Chromium browsers. You
-can use it this way indefinitely without ever deploying anything.
+Works in Chrome, Microsoft Edge, Brave, Opera, Vivaldi, and other Chromium
+browsers using the same Manifest V3 extension package. You can use it this way
+indefinitely without ever deploying anything.
 
 Firefox (version 121 or newer)
 

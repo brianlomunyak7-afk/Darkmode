@@ -48,6 +48,7 @@ html[data-nightshift="on"] [data-nightshift-dark] {
   filter: invert(1) hue-rotate(180deg) brightness(1.15) !important;
 }
 
+/* Dark pages can still contain light cards or panels. */
 /* Video player wrappers — preserve original */
 html[data-nightshift="on"] [data-nightshift-player] {
   filter: invert(1) hue-rotate(180deg) !important;

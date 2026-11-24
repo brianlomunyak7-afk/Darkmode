@@ -22,7 +22,8 @@ function sanitize(s) {
     disabledSites: sites,
     brightness: clamp(s.brightness, 0.5, 1.5, 1),
     contrast: clamp(s.contrast, 0.5, 1.5, 1),
-    sepia: clamp(s.sepia, 0, 1, 0)
+    sepia: clamp(s.sepia, 0, 1, 0),
+    shade: clamp(s.shade, 0, 1, 0)
   };
 }
 

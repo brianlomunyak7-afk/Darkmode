@@ -25,6 +25,11 @@ html[data-nightshift="on"] {
   filter: invert(1) hue-rotate(180deg) contrast(var(--ns-contrast)) brightness(var(--ns-brightness)) sepia(var(--ns-sepia)) !important;
 }
 
+/* A light source body becomes charcoal gray after inversion instead of pure black. */
+html[data-nightshift="on"] body {
+  background-color: #e6e4e2 !important;
+}
+
 /* ── Media: re-invert to show original colors ──
  * invert(1) ∘ invert(1) = identity — zero artifacts, zero color shift. */
 
